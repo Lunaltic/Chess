@@ -6,8 +6,11 @@ public class GameManager : MonoBehaviour
 {
     public GameStatus status;
     public static GameManager Instance;
-
-    public Vector2 selectedSquare;
+    [Header("Current Square:")]
+    public Square selectedSquare;
+    [HideInInspector] public Piece selectedPiece;
+    public Piece.PieceType type;
+    public Piece.PieceColor pieceColor;
     public Vector2 targetSquare;
 
     void Awake()
@@ -18,7 +21,12 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if(selectedPiece != null)
+		{
+            type = selectedSquare.piece.type;
+            pieceColor = selectedSquare.piece.pieceColor;
+        }
+
     }
 
     public enum GameStatus
