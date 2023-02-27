@@ -1,3 +1,8 @@
+/* ===================================================
+ *  This Script is used only for displaying a chess
+ *  piece in the board. The code for pieces movements
+ *  are in the Square.cs script. More info on Wiki.
+ */
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;

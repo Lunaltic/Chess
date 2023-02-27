@@ -4,12 +4,13 @@ using UnityEngine;
 
 public class Square : MonoBehaviour
 {
-
 	public Vector2 coord;
 	public Piece piece;
 	public int index;
 	bool selected = false;
 	bool highlighted = false;
+	bool isValid = false;
+
 	Color baseColor;
 	private void Start()
 	{
@@ -45,7 +46,7 @@ public class Square : MonoBehaviour
 			if (piece.type == Piece.PieceType.none) { UnSelectSquare(); return; }
 
 			// Otherwise we will select that square
-			else { if (piece.pieceColor == Piece.PieceColor.white) { SelectSquare(); return; } }
+			else { if (piece.pieceColor == GameManager.Instance.pieceColor) { SelectSquare(); return; } }
 		}
 
 
@@ -53,29 +54,42 @@ public class Square : MonoBehaviour
 		if(GameManager.Instance.selectedSquare != null)
 		{
 			//  The selected piece will move it to the following square
-			if (piece.type == Piece.PieceType.none)
+			if (piece.type == Piece.PieceType.none || piece.pieceColor != GameManager.Instance.pieceColor)
 			{
-				piece = GameManager.Instance.selectedSquare.piece;
-				UnSelectSquare();
-				
+				Validate();
 			}
+
 
 			// Checking if the player wants to unselect or select another piece
 			if (GameManager.Instance.selectedSquare == this) { UnSelectSquare(); return; }
-			else { if(piece.pieceColor == Piece.PieceColor.white) { SelectSquare(); return; } }
+			else { if(piece.pieceColor == GameManager.Instance.pieceColor) { SelectSquare(); return; } }
 		}
+
+	}
+
+	void MovePiece()
+	{
+		piece.type = GameManager.Instance.type;
+		piece.pieceColor = GameManager.Instance.pieceColor;
+
+		GameManager.Instance.selectedSquare.piece.type = Piece.PieceType.none;
+		UnSelectSquare();
+
+		// This code will change the player's turn
+		if(GameManager.Instance.pieceColor == Piece.PieceColor.white) { GameManager.Instance.pieceColor = Piece.PieceColor.black; } else { GameManager.Instance.pieceColor = Piece.PieceColor.white; }
 	}
 
 
 	void SelectSquare()
 	{
 		GameManager.Instance.selectedSquare = this;
-		GameManager.Instance.selectedSquare.piece = piece;
+		GameManager.Instance.type = piece.type;
+		GameManager.Instance.pieceColor = piece.pieceColor;
 	}
 
 	void UnSelectSquare()
 	{
-		GameManager.Instance.selectedSquare.piece.type = Piece.PieceType.none;
+		GameManager.Instance.type = Piece.PieceType.none;
 		GameManager.Instance.selectedSquare = null;
 	}
 
@@ -95,4 +109,24 @@ public class Square : MonoBehaviour
 			}
 		}
 	}
+
+	public void Validate()
+	{
+		if (GameManager.Instance.type == Piece.PieceType.pawn)
+		{
+			if (GameManager.Instance.selectedSquare.index == index - 8 && GameManager.Instance.pieceColor == Piece.PieceColor.white)
+			{
+				MovePiece();
+			}
+
+			else if (GameManager.Instance.selectedSquare.index == index + 8 && GameManager.Instance.pieceColor == Piece.PieceColor.black)
+			{
+				MovePiece();
+			}
+		}
+	}
+
 }
+
+
+

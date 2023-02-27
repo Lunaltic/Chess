@@ -8,7 +8,6 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance;
     [Header("Current Square:")]
     public Square selectedSquare;
-    [HideInInspector] public Piece selectedPiece;
     public Piece.PieceType type;
     public Piece.PieceColor pieceColor;
     public Vector2 targetSquare;
@@ -21,11 +20,7 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(selectedPiece != null)
-		{
-            type = selectedSquare.piece.type;
-            pieceColor = selectedSquare.piece.pieceColor;
-        }
+       // print(selectedSquare.piece + "\n" + selectedSquare.piece.type + " " + selectedSquare.piece.pieceColor);
 
     }
 
