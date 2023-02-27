@@ -35,6 +35,10 @@ public class Square : MonoBehaviour
 				GetComponent<SpriteRenderer>().color = new Color(0.3f, 0.3f, 0.3f);
 			}
 		}
+		else
+		{
+			GetComponent<SpriteRenderer>().color = Color.red;
+		}
 
 	}
 
@@ -113,7 +117,6 @@ public class Square : MonoBehaviour
 			if (!highlighted)
 			{
 				highlighted = true;
-				GetComponent<SpriteRenderer>().color = Color.red;
 			}
 			else
 			{
@@ -173,7 +176,7 @@ public class Square : MonoBehaviour
 		#endregion
 
 		#region King
-		if (GameManager.Instance.type == Piece.PieceType.king)
+		if (pType == Piece.PieceType.king)
 		{
 
 			if(square.index == index + 8 || square.index == index - 8 || square.index == index + 1 || square.index == index - 1
@@ -185,12 +188,93 @@ public class Square : MonoBehaviour
 		#endregion
 
 		#region Knight
-		if (GameManager.Instance.type == Piece.PieceType.knight)
+		if (pType == Piece.PieceType.knight)
 		{
 
 			if (square.index == index + 17 || square.index == index - 17 || square.index == index + 15 || square.index == index - 15
 				|| square.index == index + 10 || square.index == index - 10 || square.index == index + 6 || square.index == index - 6)
 			{
+				MovePiece();
+			}
+		}
+		#endregion
+
+		#region Rook
+		if(pType == Piece.PieceType.rook)
+		{
+			// Check if the rook is moving only on its own file/collumn
+			if(square.coord.x == coord.x || square.coord.y == coord.y)
+			{
+				// Will look if there is a piece between the initial square and the final one
+				// If there is a piece on the middle, then the move won't be played
+
+				// ERRO QUE TA DANDO: a torre detecta peças que estão antes da casa de inicio, ou seja, que não eram pra ser consideradas
+				// Tentei verificar quando a torre está subindo, mas não foi
+				foreach (Transform squaresToAnalyze in Board.Instance.transform)
+				{
+					Square currentSquare = squaresToAnalyze.GetComponent<Square>();
+					float deltaX = Mathf.Abs(coord.x - square.coord.x);
+					float deltaY = Mathf.Abs(coord.y - square.coord.y);
+
+					if (currentSquare.coord.x == coord.x)
+					{
+						currentSquare.highlighted = true;
+						if ((coord.y - square.coord.y < 0 && currentSquare.coord.y >= deltaY && currentSquare.coord.y != square.coord.y) ||
+							(coord.y - square.coord.y > 0 && currentSquare.coord.y <= deltaY && currentSquare.coord.y != square.coord.y))
+						{
+							if (currentSquare.piece.type != Piece.PieceType.none) { print(currentSquare.coord); return; }
+						}
+					}
+
+					if (currentSquare.coord.y == coord.y)
+					{
+						if ((coord.x - square.coord.x > 0 && currentSquare.coord.x <= deltaX && currentSquare.coord.x != square.coord.x) ||
+							(coord.x - square.coord.x < 0 && currentSquare.coord.x >= deltaX && currentSquare.coord.x != square.coord.x))
+						{
+							if (currentSquare.piece.type != Piece.PieceType.none) { return; }
+						}
+					}
+				}
+
+				// No pieces between squares detected, playing the move
+				MovePiece();
+			}
+		}
+		#endregion
+
+		#region Queen
+		if(pType == Piece.PieceType.queen)
+		{
+			// Check if the rook is moving only on its own file/collumn
+			if (square.coord.x == coord.x || square.coord.y == coord.y)
+			{
+				// Will look if there is a piece between the initial square and the final one
+				// If there is a piece on the middle, then the move won't be played
+				foreach (Transform squaresToAnalyze in Board.Instance.transform)
+				{
+					Square currentSquare = squaresToAnalyze.GetComponent<Square>();
+					float deltaX = Mathf.Abs(coord.x - square.coord.x);
+					float deltaY = Mathf.Abs(coord.y - square.coord.y);
+
+
+					if (currentSquare.coord.x == coord.x)
+					{
+						if (currentSquare.coord.y <= deltaY && currentSquare.coord.y != square.coord.y)
+						{
+							if (currentSquare.piece.type != Piece.PieceType.none) { return; }
+						}
+					}
+
+					if (currentSquare.coord.y == coord.y)
+					{
+						if (currentSquare.coord.x <= deltaX && currentSquare.coord.x != square.coord.x)
+						{
+							if (currentSquare.piece.type != Piece.PieceType.none) { return; }
+						}
+					}
+				}
+
+				// No pieces between squares detected, playing the move
 				MovePiece();
 			}
 		}

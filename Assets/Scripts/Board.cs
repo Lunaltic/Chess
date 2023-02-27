@@ -91,4 +91,18 @@ public class Board : MonoBehaviour
 		GameManager.Instance.status = GameManager.GameStatus.readyToPlay;
 		print("ready");
 	}
+
+	public void ResetPieces()
+	{
+		foreach (Transform child in transform)
+		{
+			//pawns
+			Square childSquare = child.GetComponent<Square>();
+			childSquare.piece.type = Piece.PieceType.none;
+			childSquare.piece.pieceColor = Piece.PieceColor.white;
+
+			StartCoroutine(DrawStartingPieces());
+
+		}
+	}
 }

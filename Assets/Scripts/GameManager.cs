@@ -25,8 +25,11 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-       // print(selectedSquare.piece + "\n" + selectedSquare.piece.type + " " + selectedSquare.piece.pieceColor);
-
+		// print(selectedSquare.piece + "\n" + selectedSquare.piece.type + " " + selectedSquare.piece.pieceColor);
+		if (Input.GetKeyDown(KeyCode.F1))
+		{
+            Board.Instance.ResetPieces();
+		}
     }
 
     public void newMove()
