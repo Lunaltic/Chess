@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -17,6 +18,8 @@ public class Square : MonoBehaviour
 		baseColor = GetComponent<SpriteRenderer>().color;
 		piece = GetComponentInChildren<Piece>();
 		coord = new Vector2(transform.position.x, transform.position.y);
+
+		
 	}
 
 	private void Update()
@@ -69,6 +72,8 @@ public class Square : MonoBehaviour
 
 	void MovePiece()
 	{
+		UpdateNotation();
+
 		piece.type = GameManager.Instance.type;
 		piece.pieceColor = GameManager.Instance.pieceColor;
 
@@ -77,6 +82,14 @@ public class Square : MonoBehaviour
 
 		// This code will change the player's turn
 		if(GameManager.Instance.pieceColor == Piece.PieceColor.white) { GameManager.Instance.pieceColor = Piece.PieceColor.black; } else { GameManager.Instance.pieceColor = Piece.PieceColor.white; }
+	}
+
+	void UpdateNotation()
+	{
+		int movesCounter = GameManager.Instance.moves.Length;
+		Array.Resize(ref GameManager.Instance.moves, movesCounter + 1);
+		GameManager.Instance.moves[movesCounter] = coord.ToString();
+		GameManager.Instance.newMove();
 	}
 
 
@@ -110,20 +123,78 @@ public class Square : MonoBehaviour
 		}
 	}
 
+	// This method is used to validate a move, to check if its possible or not
 	public void Validate()
 	{
-		if (GameManager.Instance.type == Piece.PieceType.pawn)
+		Square square = GameManager.Instance.selectedSquare;
+		Piece.PieceType pType = GameManager.Instance.type;
+		Piece.PieceColor pColor = GameManager.Instance.pieceColor;
+
+		#region Pawn
+		if (pType == Piece.PieceType.pawn)
 		{
-			if (GameManager.Instance.selectedSquare.index == index - 8 && GameManager.Instance.pieceColor == Piece.PieceColor.white)
+			// WHITE PAWN
+
+			if(pColor == Piece.PieceColor.white)
 			{
-				MovePiece();
+				// Checking if the pawn has moved before
+				if (square.coord.y == 2  && (square.index == index - 8 || square.index == index - 16))
+				{
+					MovePiece();
+				}
+
+				// If not, check if the pawn move is legal
+				else
+				{
+					if(square.index == index - 8) { MovePiece(); }
+				}
 			}
 
-			else if (GameManager.Instance.selectedSquare.index == index + 8 && GameManager.Instance.pieceColor == Piece.PieceColor.black)
+			// BLACK PAWN
+
+			if (pColor == Piece.PieceColor.black)
+			{
+				// Checking if the pawn has moved before
+				if (square.coord.y == 7 &&
+					(square.index == index + 8 ||
+					square.index == index + 16))
+				{
+					MovePiece();
+				}
+
+				// If not, check if the pawn move is legal
+				else
+				{
+					if (square.index == index + 8) { MovePiece(); }
+				}
+			}
+
+		}
+		#endregion
+
+		#region King
+		if (GameManager.Instance.type == Piece.PieceType.king)
+		{
+
+			if(square.index == index + 8 || square.index == index - 8 || square.index == index + 1 || square.index == index - 1
+				|| square.index == index + 9 || square.index == index - 9 || square.index == index + 7 || square.index == index - 7)
 			{
 				MovePiece();
 			}
 		}
+		#endregion
+
+		#region Knight
+		if (GameManager.Instance.type == Piece.PieceType.knight)
+		{
+
+			if (square.index == index + 17 || square.index == index - 17 || square.index == index + 15 || square.index == index - 15
+				|| square.index == index + 10 || square.index == index - 10 || square.index == index + 6 || square.index == index - 6)
+			{
+				MovePiece();
+			}
+		}
+		#endregion
 	}
 
 }

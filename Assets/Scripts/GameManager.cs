@@ -11,6 +11,11 @@ public class GameManager : MonoBehaviour
     public Piece.PieceType type;
     public Piece.PieceColor pieceColor;
     public Vector2 targetSquare;
+    public string[] moves;
+    public string gameNotation;
+
+    
+
 
     void Awake()
     {
@@ -23,6 +28,14 @@ public class GameManager : MonoBehaviour
        // print(selectedSquare.piece + "\n" + selectedSquare.piece.type + " " + selectedSquare.piece.pieceColor);
 
     }
+
+    public void newMove()
+	{
+		for (int i = 0; i < moves.Length; i++)
+		{
+            gameNotation = gameNotation + "/" + moves[i];
+		}
+	}
 
     public enum GameStatus
 	{
