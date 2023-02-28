@@ -10,21 +10,48 @@ public class Square : MonoBehaviour
 	public int index;
 	bool selected = false;
 	bool highlighted = false;
-	bool isValid = false;
+	[HideInInspector] public bool lastMove = false;
 
-	Color baseColor;
+	[HideInInspector] public Color baseColor;
+
+	string coordA;
 	private void Start()
 	{
-		baseColor = GetComponent<SpriteRenderer>().color;
 		piece = GetComponentInChildren<Piece>();
 		coord = new Vector2(transform.position.x, transform.position.y);
 
-		
+		switch (coord.x)
+		{
+			case 1:
+				coordA = "a";
+				break;
+			case 2:
+				coordA = "b";
+				break;
+			case 3:
+				coordA = "c";
+				break;
+			case 4:
+				coordA = "d";
+				break;
+			case 5:
+				coordA = "e";
+				break;
+			case 6:
+				coordA = "f";
+				break;
+			case 7:
+				coordA = "g";
+				break;
+			case 8:
+				coordA = "h";
+				break;
+		}
 	}
 
 	private void Update()
 	{
-		if (!highlighted)
+		if (!highlighted && !lastMove)
 		{
 			if (GameManager.Instance.selectedSquare != this)
 			{
@@ -35,10 +62,12 @@ public class Square : MonoBehaviour
 				GetComponent<SpriteRenderer>().color = new Color(0.3f, 0.3f, 0.3f);
 			}
 		}
-		else
+
+		if (lastMove)
 		{
-			GetComponent<SpriteRenderer>().color = Color.red;
+			GetComponent<SpriteRenderer>().color = Board.Instance.lastMoveColor;
 		}
+
 
 	}
 
@@ -77,12 +106,16 @@ public class Square : MonoBehaviour
 	void MovePiece()
 	{
 		UpdateNotation();
+		Board.Instance.RemoveLastSquares();
+		Board.Instance.lastSquaresToMove = new Square[]{ this, GameManager.Instance.selectedSquare };
+		Board.Instance.UpdateLastSquares();
 
 		piece.type = GameManager.Instance.type;
 		piece.pieceColor = GameManager.Instance.pieceColor;
 
 		GameManager.Instance.selectedSquare.piece.type = Piece.PieceType.none;
 		UnSelectSquare();
+		Board.Instance.GetComponent<AudioSource>().Play();
 
 		// This code will change the player's turn
 		if(GameManager.Instance.pieceColor == Piece.PieceColor.white) { GameManager.Instance.pieceColor = Piece.PieceColor.black; } else { GameManager.Instance.pieceColor = Piece.PieceColor.white; }
@@ -92,8 +125,33 @@ public class Square : MonoBehaviour
 	{
 		int movesCounter = GameManager.Instance.moves.Length;
 		Array.Resize(ref GameManager.Instance.moves, movesCounter + 1);
-		GameManager.Instance.moves[movesCounter] = coord.ToString();
+		switch (GameManager.Instance.type)
+		{
+			case Piece.PieceType.none:
+				GameManager.Instance.moves[movesCounter] = coordA + coord.y;
+				break;
+			case Piece.PieceType.pawn:
+				GameManager.Instance.moves[movesCounter] = coordA + coord.y;
+				break;
+			case Piece.PieceType.knight:
+				GameManager.Instance.moves[movesCounter] = "N"+coordA + coord.y;
+				break;
+			case Piece.PieceType.bishop:
+				GameManager.Instance.moves[movesCounter] = "B"+coordA + coord.y;
+				break;
+			case Piece.PieceType.rook:
+				GameManager.Instance.moves[movesCounter] = "R"+coordA + coord.y;
+				break;
+			case Piece.PieceType.queen:
+				GameManager.Instance.moves[movesCounter] = "Q"+coordA + coord.y;
+				break;
+			case Piece.PieceType.king:
+				GameManager.Instance.moves[movesCounter] = "K"+coordA + coord.y;
+				break;
+		}
 		GameManager.Instance.newMove();
+
+		UIManager.Instance.NewNotation();
 	}
 
 
@@ -242,43 +300,7 @@ public class Square : MonoBehaviour
 		}
 		#endregion
 
-		#region Queen
-		if(pType == Piece.PieceType.queen)
-		{
-			// Check if the rook is moving only on its own file/collumn
-			if (square.coord.x == coord.x || square.coord.y == coord.y)
-			{
-				// Will look if there is a piece between the initial square and the final one
-				// If there is a piece on the middle, then the move won't be played
-				foreach (Transform squaresToAnalyze in Board.Instance.transform)
-				{
-					Square currentSquare = squaresToAnalyze.GetComponent<Square>();
-					float deltaX = Mathf.Abs(coord.x - square.coord.x);
-					float deltaY = Mathf.Abs(coord.y - square.coord.y);
-
-
-					if (currentSquare.coord.x == coord.x)
-					{
-						if (currentSquare.coord.y <= deltaY && currentSquare.coord.y != square.coord.y)
-						{
-							if (currentSquare.piece.type != Piece.PieceType.none) { return; }
-						}
-					}
-
-					if (currentSquare.coord.y == coord.y)
-					{
-						if (currentSquare.coord.x <= deltaX && currentSquare.coord.x != square.coord.x)
-						{
-							if (currentSquare.piece.type != Piece.PieceType.none) { return; }
-						}
-					}
-				}
-
-				// No pieces between squares detected, playing the move
-				MovePiece();
-			}
-		}
-		#endregion
+		
 	}
 
 }

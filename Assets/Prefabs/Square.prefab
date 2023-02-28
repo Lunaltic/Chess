@@ -147,6 +147,8 @@ MonoBehaviour:
   coord: {x: 0, y: 0}
   piece: {fileID: 0}
   index: 63
+  lastMove: 0
+  baseColor: {r: 0.9056604, g: 0.76141936, b: 0.5767177, a: 1}
 --- !u!61 &-2335970241130093370
 BoxCollider2D:
   m_ObjectHideFlags: 0

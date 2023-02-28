@@ -13,7 +13,6 @@ public class GameManager : MonoBehaviour
     public Vector2 targetSquare;
     public string[] moves;
     public string gameNotation;
-
     
 
 

@@ -6,10 +6,13 @@ using UnityEngine.UI;
 
 public class Board : MonoBehaviour
 {
+	[Header("Settings")]
 	public float delay = .02f;
 	public GameObject square;
+	public Square[] squares;
 	public Color whiteColor = Color.white;
 	public Color blackColor = Color.black;
+	public Color lastMoveColor = Color.green;
 	public static Board Instance;
 	[Header("Black Pieces")]
 	public Sprite blackPawn;
@@ -28,6 +31,8 @@ public class Board : MonoBehaviour
 	public Sprite whiteQueen;
 	public Sprite whiteKing;
 
+	[HideInInspector] public Square[] lastSquaresToMove;
+
 	void Awake()
     {
 		Instance = this;
@@ -37,7 +42,10 @@ public class Board : MonoBehaviour
 		Invoke("ReadyToPlay", delay * 128);
     }
 
+	private void Update()
+	{
 
+	}
 	public IEnumerator DrawBoardWithDelay()
 	{
 		for (int x = 1; x <= 8; x++)
@@ -46,6 +54,7 @@ public class Board : MonoBehaviour
 			{
 				square.GetComponent<Square>().index = (y - 1) * 8 + (x - 1);
 				square.GetComponent<SpriteRenderer>().color = (x + y) % 2 == 0 ? blackColor : whiteColor;
+				square.GetComponent<Square>().baseColor = (x + y) % 2 == 0 ? blackColor : whiteColor;
 				Instantiate(square, new Vector3(x, y, 0), Quaternion.identity, transform);
 
 				yield return new WaitForSeconds(delay);
@@ -103,6 +112,21 @@ public class Board : MonoBehaviour
 
 			StartCoroutine(DrawStartingPieces());
 
+		}
+	}
+
+	public void UpdateLastSquares()
+	{
+		lastSquaresToMove[0].lastMove = true;
+		lastSquaresToMove[1].lastMove = true;
+	}
+
+	public void RemoveLastSquares()
+	{
+		if(lastSquaresToMove.Length >= 2)
+		{
+			lastSquaresToMove[0].lastMove = false;
+			lastSquaresToMove[1].lastMove = false;
 		}
 	}
 }
