@@ -31,6 +31,9 @@ public class Board : MonoBehaviour
 	public Sprite whiteQueen;
 	public Sprite whiteKing;
 
+	public AudioClip moveSFX;
+	public AudioClip captureSFX;
+
 	[HideInInspector] public Square[] lastSquaresToMove;
 
 	void Awake()
@@ -42,11 +45,6 @@ public class Board : MonoBehaviour
 		Invoke("ReadyToPlay", delay * 128);
 
     }
-
-	private void Update()
-	{
-
-	}
 
 	public void LoadPosition(string fen)
 	{
@@ -123,7 +121,7 @@ public class Board : MonoBehaviour
 	{
 		foreach (Transform child in transform)
 		{
-			/*
+			
 			Square childSquare = child.GetComponent<Square>();
 			if (childSquare.index >= 8 && childSquare.index <= 15) { childSquare.piece.type = Piece.PieceType.pawn; childSquare.piece.pieceColor = Piece.PieceColor.white; }
 			if (childSquare.index >= 48 && childSquare.index <= 55) { childSquare.piece.type = Piece.PieceType.pawn; childSquare.piece.pieceColor = Piece.PieceColor.black; }
@@ -142,9 +140,7 @@ public class Board : MonoBehaviour
 
 
 			if (childSquare.index == 4) { childSquare.piece.type = Piece.PieceType.king; childSquare.piece.pieceColor = Piece.PieceColor.white; }
-			if (childSquare.index == 60) { childSquare.piece.type = Piece.PieceType.king; childSquare.piece.pieceColor = Piece.PieceColor.black; }*/
-
-
+			if (childSquare.index == 60) { childSquare.piece.type = Piece.PieceType.king; childSquare.piece.pieceColor = Piece.PieceColor.black; }
 
 			yield return new WaitForSeconds(delay/1.75f);
 		}
@@ -153,7 +149,7 @@ public class Board : MonoBehaviour
 	public void ReadyToPlay()
 	{
 		GameManager.Instance.status = GameManager.GameStatus.readyToPlay;
-		LoadPosition("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+		//LoadPosition("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 		print("ready");
 	}
 

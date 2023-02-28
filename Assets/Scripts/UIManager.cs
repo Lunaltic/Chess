@@ -16,4 +16,13 @@ public class UIManager : MonoBehaviour
 	{
 		Instantiate(notation, notationList.transform);
 	}
+
+	public GameObject panel;
+	private void Update()
+	{
+		if (Input.GetKeyDown(KeyCode.F2))
+		{
+			panel.SetActive(!panel.activeSelf);
+		}
+	}
 }

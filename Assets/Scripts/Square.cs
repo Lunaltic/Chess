@@ -103,6 +103,7 @@ public class Square : MonoBehaviour
 
 	}
 
+
 	void MovePiece()
 	{
 		UpdateNotation();
@@ -110,45 +111,64 @@ public class Square : MonoBehaviour
 		Board.Instance.lastSquaresToMove = new Square[]{ this, GameManager.Instance.selectedSquare };
 		Board.Instance.UpdateLastSquares();
 
+		if (piece.type != Piece.PieceType.none)
+		{
+			Board.Instance.GetComponent<AudioSource>().PlayOneShot(Board.Instance.captureSFX);
+		}
+		else
+		{
+			Board.Instance.GetComponent<AudioSource>().PlayOneShot(Board.Instance.moveSFX);
+		}
+
 		piece.type = GameManager.Instance.type;
 		piece.pieceColor = GameManager.Instance.pieceColor;
 
 		GameManager.Instance.selectedSquare.piece.type = Piece.PieceType.none;
 		UnSelectSquare();
-		Board.Instance.GetComponent<AudioSource>().Play();
+
+
+		
 
 		// This code will change the player's turn
 		if(GameManager.Instance.pieceColor == Piece.PieceColor.white) { GameManager.Instance.pieceColor = Piece.PieceColor.black; } else { GameManager.Instance.pieceColor = Piece.PieceColor.white; }
 	}
 
+	string updatedNotation;
 	void UpdateNotation()
 	{
 		int movesCounter = GameManager.Instance.moves.Length;
 		Array.Resize(ref GameManager.Instance.moves, movesCounter + 1);
+
+		if(GameManager.Instance.selectedSquare.piece.type == Piece.PieceType.pawn && piece.type != Piece.PieceType.none) { updatedNotation = GameManager.Instance.selectedSquare.coordA + "x" + coordA + coord.y; }
+		else if(piece.type != Piece.PieceType.none && GameManager.Instance.selectedSquare.piece.type != Piece.PieceType.pawn) { updatedNotation = "x" + coordA + coord.y; }
+		else { updatedNotation = coordA + coord.y; }
+		
+
 		switch (GameManager.Instance.type)
 		{
 			case Piece.PieceType.none:
-				GameManager.Instance.moves[movesCounter] = coordA + coord.y;
+				GameManager.Instance.moves[movesCounter] = updatedNotation;
 				break;
 			case Piece.PieceType.pawn:
-				GameManager.Instance.moves[movesCounter] = coordA + coord.y;
+				GameManager.Instance.moves[movesCounter] = updatedNotation;
 				break;
 			case Piece.PieceType.knight:
-				GameManager.Instance.moves[movesCounter] = "N"+coordA + coord.y;
+				GameManager.Instance.moves[movesCounter] = "N"+ updatedNotation;
 				break;
 			case Piece.PieceType.bishop:
-				GameManager.Instance.moves[movesCounter] = "B"+coordA + coord.y;
+				GameManager.Instance.moves[movesCounter] = "B"+ updatedNotation;
 				break;
 			case Piece.PieceType.rook:
-				GameManager.Instance.moves[movesCounter] = "R"+coordA + coord.y;
+				GameManager.Instance.moves[movesCounter] = "R"+ updatedNotation;
 				break;
 			case Piece.PieceType.queen:
-				GameManager.Instance.moves[movesCounter] = "Q"+coordA + coord.y;
+				GameManager.Instance.moves[movesCounter] = "Q"+ updatedNotation;
 				break;
 			case Piece.PieceType.king:
-				GameManager.Instance.moves[movesCounter] = "K"+coordA + coord.y;
+				GameManager.Instance.moves[movesCounter] = "K"+ updatedNotation;
 				break;
 		}
+
 		GameManager.Instance.newMove();
 
 		UIManager.Instance.NewNotation();
@@ -209,6 +229,15 @@ public class Square : MonoBehaviour
 				{
 					if(square.index == index - 8) { MovePiece(); }
 				}
+
+
+				if (square.index == index - 9 || square.index == index - 7)
+				{
+					if (piece.pieceColor == Piece.PieceColor.black && piece.type != Piece.PieceType.none)
+					{
+						MovePiece();
+					}
+				}
 			}
 
 			// BLACK PAWN
@@ -227,6 +256,15 @@ public class Square : MonoBehaviour
 				else
 				{
 					if (square.index == index + 8) { MovePiece(); }
+				}
+
+				if(square.index == index + 9 || square.index == index + 7)
+				{
+					if(piece.pieceColor == Piece.PieceColor.white && piece.type != Piece.PieceType.none)
+					{
+						MovePiece();
+					}
+					
 				}
 			}
 
@@ -265,10 +303,7 @@ public class Square : MonoBehaviour
 			{
 				// Will look if there is a piece between the initial square and the final one
 				// If there is a piece on the middle, then the move won't be played
-
-				// ERRO QUE TA DANDO: a torre detecta peças que estão antes da casa de inicio, ou seja, que não eram pra ser consideradas
-				// Tentei verificar quando a torre está subindo, mas não foi
-				foreach (Transform squaresToAnalyze in Board.Instance.transform)
+				/*foreach (Transform squaresToAnalyze in Board.Instance.transform)
 				{
 					Square currentSquare = squaresToAnalyze.GetComponent<Square>();
 					float deltaX = Mathf.Abs(coord.x - square.coord.x);
@@ -276,7 +311,6 @@ public class Square : MonoBehaviour
 
 					if (currentSquare.coord.x == coord.x)
 					{
-						currentSquare.highlighted = true;
 						if ((coord.y - square.coord.y < 0 && currentSquare.coord.y >= deltaY && currentSquare.coord.y != square.coord.y) ||
 							(coord.y - square.coord.y > 0 && currentSquare.coord.y <= deltaY && currentSquare.coord.y != square.coord.y))
 						{
@@ -292,7 +326,7 @@ public class Square : MonoBehaviour
 							if (currentSquare.piece.type != Piece.PieceType.none) { return; }
 						}
 					}
-				}
+				} */
 
 				// No pieces between squares detected, playing the move
 				MovePiece();
@@ -300,7 +334,27 @@ public class Square : MonoBehaviour
 		}
 		#endregion
 
-		
+		#region Bishop
+		if (pType == Piece.PieceType.bishop)
+		{
+
+			if ((square.index - index) %9 == 0 || (square.index - index) %7 == 0)
+			{
+				MovePiece();
+			}
+		}
+		#endregion
+
+		#region Queen
+		if (pType == Piece.PieceType.queen)
+		{
+
+			if ((square.index - index) % 9 == 0 || (square.index - index) % 7 == 0 || square.coord.x == coord.x || square.coord.y == coord.y)
+			{
+				MovePiece();
+			}
+		}
+		#endregion
 	}
 
 }

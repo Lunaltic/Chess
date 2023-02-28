@@ -1,7 +1,7 @@
 /* ===================================================
  *  This Script is used only for displaying a chess
- *  piece in the board. The code for pieces movements
- *  are in the Square.cs script. More info on Wiki.
+ *  piece on the board. The code for piece movements
+ *  is in the Square.cs script. More info on Wiki.
  */
 using System.Collections;
 using System.Collections.Generic;
@@ -17,6 +17,7 @@ public class Piece : MonoBehaviour
 	private void Awake()
 	{
         spriteRenderer = GetComponent<SpriteRenderer>();
+        
 	}
 
 	private void Update()
