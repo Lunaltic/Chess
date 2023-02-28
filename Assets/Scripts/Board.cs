@@ -40,14 +40,64 @@ public class Board : MonoBehaviour
 		StartCoroutine(DrawBoardWithDelay());
 		StartCoroutine(StartDrawingPieces());
 		Invoke("ReadyToPlay", delay * 128);
+
     }
 
 	private void Update()
 	{
 
 	}
+
+	public void LoadPosition(string fen)
+	{
+		var pieceSymbol = new Dictionary<char, Piece.PieceType>()
+		{
+			['k'] = Piece.PieceType.king,
+			['p'] = Piece.PieceType.pawn,
+			['n'] = Piece.PieceType.knight,
+			['r'] = Piece.PieceType.rook,
+			['q'] = Piece.PieceType.queen,
+			['b'] = Piece.PieceType.bishop
+		};
+
+		string fenBoard = fen.Split(' ')[0];
+		int x = 0, y = 8;
+
+		foreach (char symbol in fenBoard)
+		{
+			if(symbol == '/')
+			{
+				x = 0;
+				y--;
+			}
+			else
+			{
+				if (char.IsDigit(symbol))
+				{
+					x += (int)char.GetNumericValue(symbol);
+				}
+				else
+				{
+					Piece.PieceColor pColor = (char.IsUpper(symbol)) ? Piece.PieceColor.white : Piece.PieceColor.black;
+					Piece.PieceType pType = (pieceSymbol[char.ToLower(symbol)]);
+					foreach (Transform child in transform)
+					{
+						
+						Square childSquare = child.GetComponent<Square>();
+						
+
+						childSquare.GetComponentInChildren<Piece>().pieceColor = pColor;
+						childSquare.GetComponentInChildren<Piece>().type = pType;
+					}
+					x++;
+				}
+			}
+		}
+	}
 	public IEnumerator DrawBoardWithDelay()
 	{
+		Square[] squares = new Square[64];
+
 		for (int x = 1; x <= 8; x++)
 		{
 			for (int y = 1; y <= 8; y++)
@@ -56,6 +106,8 @@ public class Board : MonoBehaviour
 				square.GetComponent<SpriteRenderer>().color = (x + y) % 2 == 0 ? blackColor : whiteColor;
 				square.GetComponent<Square>().baseColor = (x + y) % 2 == 0 ? blackColor : whiteColor;
 				Instantiate(square, new Vector3(x, y, 0), Quaternion.identity, transform);
+
+				squares[square.GetComponent<Square>().index] = square.GetComponent<Square>();
 
 				yield return new WaitForSeconds(delay);
 			}
@@ -71,7 +123,7 @@ public class Board : MonoBehaviour
 	{
 		foreach (Transform child in transform)
 		{
-			//pawns
+			/*
 			Square childSquare = child.GetComponent<Square>();
 			if (childSquare.index >= 8 && childSquare.index <= 15) { childSquare.piece.type = Piece.PieceType.pawn; childSquare.piece.pieceColor = Piece.PieceColor.white; }
 			if (childSquare.index >= 48 && childSquare.index <= 55) { childSquare.piece.type = Piece.PieceType.pawn; childSquare.piece.pieceColor = Piece.PieceColor.black; }
@@ -90,7 +142,10 @@ public class Board : MonoBehaviour
 
 
 			if (childSquare.index == 4) { childSquare.piece.type = Piece.PieceType.king; childSquare.piece.pieceColor = Piece.PieceColor.white; }
-			if (childSquare.index == 60) { childSquare.piece.type = Piece.PieceType.king; childSquare.piece.pieceColor = Piece.PieceColor.black; }
+			if (childSquare.index == 60) { childSquare.piece.type = Piece.PieceType.king; childSquare.piece.pieceColor = Piece.PieceColor.black; }*/
+
+
+
 			yield return new WaitForSeconds(delay/1.75f);
 		}
 	}
@@ -98,6 +153,7 @@ public class Board : MonoBehaviour
 	public void ReadyToPlay()
 	{
 		GameManager.Instance.status = GameManager.GameStatus.readyToPlay;
+		LoadPosition("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 		print("ready");
 	}
 
@@ -128,5 +184,10 @@ public class Board : MonoBehaviour
 			lastSquaresToMove[0].lastMove = false;
 			lastSquaresToMove[1].lastMove = false;
 		}
+	}
+
+	public void GetSquares()
+	{
+
 	}
 }
