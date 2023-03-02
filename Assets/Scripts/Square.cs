@@ -219,7 +219,7 @@ public class Square : MonoBehaviour
 			if(pColor == Piece.PieceColor.white)
 			{
 				// Checking if the pawn has moved before
-				if (square.coord.y == 2  && (square.index == index - 8 || square.index == index - 16))
+				if (square.coord.y == 2  && (square.index == index - 8 || square.index == index - 16) && piece.type == Piece.PieceType.none)
 				{
 					MovePiece();
 				}
@@ -227,7 +227,7 @@ public class Square : MonoBehaviour
 				// If not, check if the pawn move is legal
 				else
 				{
-					if(square.index == index - 8) { MovePiece(); }
+					if(square.index == index - 8 && piece.type == Piece.PieceType.none) { MovePiece(); }
 				}
 
 
@@ -247,7 +247,7 @@ public class Square : MonoBehaviour
 				// Checking if the pawn has moved before
 				if (square.coord.y == 7 &&
 					(square.index == index + 8 ||
-					square.index == index + 16))
+					square.index == index + 16) && piece.type == Piece.PieceType.none)
 				{
 					MovePiece();
 				}
@@ -255,7 +255,7 @@ public class Square : MonoBehaviour
 				// If not, check if the pawn move is legal
 				else
 				{
-					if (square.index == index + 8) { MovePiece(); }
+					if (square.index == index + 8 && piece.type == Piece.PieceType.none) { MovePiece(); }
 				}
 
 				if(square.index == index + 9 || square.index == index + 7)
@@ -301,34 +301,61 @@ public class Square : MonoBehaviour
 			// Check if the rook is moving only on its own file/collumn
 			if(square.coord.x == coord.x || square.coord.y == coord.y)
 			{
-				// Will look if there is a piece between the initial square and the final one
-				// If there is a piece on the middle, then the move won't be played
-				/*foreach (Transform squaresToAnalyze in Board.Instance.transform)
+				foreach (Transform listSquare in Board.Instance.transform)
 				{
-					Square currentSquare = squaresToAnalyze.GetComponent<Square>();
-					float deltaX = Mathf.Abs(coord.x - square.coord.x);
-					float deltaY = Mathf.Abs(coord.y - square.coord.y);
-
-					if (currentSquare.coord.x == coord.x)
+					Square current = listSquare.GetComponent<Square>();
+					// Checking the file of the rook
+					if (current.coord.y == coord.y)
 					{
-						if ((coord.y - square.coord.y < 0 && currentSquare.coord.y >= deltaY && currentSquare.coord.y != square.coord.y) ||
-							(coord.y - square.coord.y > 0 && currentSquare.coord.y <= deltaY && currentSquare.coord.y != square.coord.y))
+						// Moving to the right
+						if (coord.x > square.coord.x)
 						{
-							if (currentSquare.piece.type != Piece.PieceType.none) { print(currentSquare.coord); return; }
+							// Checking between final and initial square to see if there is a piece there
+							if(current.coord.x > square.coord.x && current.coord.x < coord.x && current.piece.type != Piece.PieceType.none)
+							{
+								return;
+							}
+
+						}
+
+						// Moving to the Left
+						if (coord.x < square.coord.x)
+						{
+							// Checking between final and initial square to see if there is a piece there
+							if (current.coord.x < square.coord.x && current.coord.x > coord.x && current.piece.type != Piece.PieceType.none)
+							{
+								return;
+							}
 						}
 					}
 
-					if (currentSquare.coord.y == coord.y)
+					// ------------------------------------------------------------------
+
+					// Checking the file of the rook
+					if (current.coord.x == coord.x)
 					{
-						if ((coord.x - square.coord.x > 0 && currentSquare.coord.x <= deltaX && currentSquare.coord.x != square.coord.x) ||
-							(coord.x - square.coord.x < 0 && currentSquare.coord.x >= deltaX && currentSquare.coord.x != square.coord.x))
+						// Moving Up
+						if (coord.y > square.coord.y)
 						{
-							if (currentSquare.piece.type != Piece.PieceType.none) { return; }
+							// Checking between final and initial square to see if there is a piece there
+							if (current.coord.y > square.coord.y && current.coord.y < coord.y && current.piece.type != Piece.PieceType.none)
+							{
+								return;
+							}
+
+						}
+
+						// Moving Down
+						if (coord.y < square.coord.y)
+						{
+							// Checking between final and initial square to see if there is a piece there
+							if (current.coord.y < square.coord.y && current.coord.y > coord.y && current.piece.type != Piece.PieceType.none)
+							{
+								return;
+							}
 						}
 					}
-				} */
-
-				// No pieces between squares detected, playing the move
+				}
 				MovePiece();
 			}
 		}
@@ -337,10 +364,65 @@ public class Square : MonoBehaviour
 		#region Bishop
 		if (pType == Piece.PieceType.bishop)
 		{
-
 			if ((square.index - index) %9 == 0 || (square.index - index) %7 == 0)
 			{
-				MovePiece();
+				foreach (Transform listSquare in Board.Instance.transform)
+				{
+					Square current = listSquare.GetComponent<Square>();
+					
+					// Moving Right Up or Left Down
+					if ((current.index - index) % 9 == 0)
+					{
+						print(current.coord);
+						// Moving up right
+						if (index > square.index)
+						{
+							if (current.index > square.index && current.index < index && current.piece.type != Piece.PieceType.none)
+							{
+								print(current.piece.type +" at " + current.coord);
+								return;
+							}
+						}
+
+						// Moving down left
+						if (index < square.index)
+						{
+							if (current.index < square.index && current.index > index && current.piece.type != Piece.PieceType.none)
+							{
+								print(current.piece.type + " at " + current.coord);
+								return;
+							}
+						}
+					}
+
+					// Moving Down Right or Up Left
+					if ((current.index - index) % 7 == 0)
+					{
+						print(current.coord);
+						// Moving up right
+						if (index > square.index)
+						{
+							if (current.index > square.index && current.index < index && current.piece.type != Piece.PieceType.none)
+							{
+								print(current.piece.type + " at " + current.coord);
+								return;
+							}
+						}
+
+						// Moving down left
+						if (index < square.index)
+						{
+							if (current.index < square.index && current.index > index && current.piece.type != Piece.PieceType.none)
+							{
+								print(current.piece.type + " at " + current.coord);
+								return;
+							}
+						}
+					}
+
+				}
+				
+			MovePiece();
 			}
 		}
 		#endregion
@@ -348,12 +430,116 @@ public class Square : MonoBehaviour
 		#region Queen
 		if (pType == Piece.PieceType.queen)
 		{
-
 			if ((square.index - index) % 9 == 0 || (square.index - index) % 7 == 0 || square.coord.x == coord.x || square.coord.y == coord.y)
 			{
+				foreach (Transform listSquare in Board.Instance.transform)
+				{
+					Square current = listSquare.GetComponent<Square>();
+					#region Horizontal/Vertical
+
+					// Checking the file of the rook
+					if (current.coord.y == coord.y)
+					{
+						// Moving to the right
+						if (coord.x > square.coord.x)
+						{
+							// Checking between final and initial square to see if there is a piece there
+							if (current.coord.x > square.coord.x && current.coord.x < coord.x && current.piece.type != Piece.PieceType.none)
+							{
+								return;
+							}
+
+						}
+
+						// Moving to the Left
+						if (coord.x < square.coord.x)
+						{
+							// Checking between final and initial square to see if there is a piece there
+							if (current.coord.x < square.coord.x && current.coord.x > coord.x && current.piece.type != Piece.PieceType.none)
+							{
+								return;
+							}
+						}
+					}
+
+					// ------------------------------------------------------------------
+
+					// Checking the file of the rook
+					if (current.coord.x == coord.x)
+					{
+						// Moving Up
+						if (coord.y > square.coord.y)
+						{
+							// Checking between final and initial square to see if there is a piece there
+							if (current.coord.y > square.coord.y && current.coord.y < coord.y && current.piece.type != Piece.PieceType.none)
+							{
+								return;
+							}
+
+						}
+
+						// Moving Down
+						if (coord.y < square.coord.y)
+						{
+							// Checking between final and initial square to see if there is a piece there
+							if (current.coord.y < square.coord.y && current.coord.y > coord.y && current.piece.type != Piece.PieceType.none)
+							{
+								return;
+							}
+						}
+					}
+					#endregion
+
+					#region Diagonal
+					if ((current.index - index) % 9 == 0)
+					{
+						// Moving up-right
+						if (index - square.index > 0)
+						{
+							if (current.index > square.index && current.index < index && current.piece.type != Piece.PieceType.none)
+							{
+								return;
+							}
+						}
+
+						// Moving up-right
+						if (index - square.index < 0)
+						{
+							if (current.index < square.index && current.index > index && current.piece.type != Piece.PieceType.none)
+							{
+								return;
+							}
+						}
+					}
+
+					// -----------------------------------------------------------------
+
+					if ((current.index - index) % 7 == 0)
+					{
+						// Moving up-right
+						if (index - square.index > 0)
+						{
+							if (current.index > square.index && current.index < index && current.piece.type != Piece.PieceType.none)
+							{
+								return;
+							}
+						}
+
+						// Moving up-right
+						if (index - square.index < 0)
+						{
+							if (current.index < square.index && current.index > index && current.piece.type != Piece.PieceType.none)
+							{
+								return;
+							}
+						}
+					}
+				}
+				#endregion
+				}
 				MovePiece();
-			}
 		}
+		
 		#endregion
 	}
 

@@ -9,7 +9,6 @@ public class Board : MonoBehaviour
 	[Header("Settings")]
 	public float delay = .02f;
 	public GameObject square;
-	public Square[] squares;
 	public Color whiteColor = Color.white;
 	public Color blackColor = Color.black;
 	public Color lastMoveColor = Color.green;
@@ -35,6 +34,8 @@ public class Board : MonoBehaviour
 	public AudioClip captureSFX;
 
 	[HideInInspector] public Square[] lastSquaresToMove;
+
+	public List<Square> Squares = new List<Square>();
 
 	void Awake()
     {
@@ -94,8 +95,6 @@ public class Board : MonoBehaviour
 	}
 	public IEnumerator DrawBoardWithDelay()
 	{
-		Square[] squares = new Square[64];
-
 		for (int x = 1; x <= 8; x++)
 		{
 			for (int y = 1; y <= 8; y++)
@@ -105,8 +104,7 @@ public class Board : MonoBehaviour
 				square.GetComponent<Square>().baseColor = (x + y) % 2 == 0 ? blackColor : whiteColor;
 				Instantiate(square, new Vector3(x, y, 0), Quaternion.identity, transform);
 
-				squares[square.GetComponent<Square>().index] = square.GetComponent<Square>();
-
+				Squares.Add(square.GetComponent<Square>());
 				yield return new WaitForSeconds(delay);
 			}
 		}
@@ -182,8 +180,4 @@ public class Board : MonoBehaviour
 		}
 	}
 
-	public void GetSquares()
-	{
-
-	}
 }
